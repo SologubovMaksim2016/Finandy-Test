@@ -3,6 +3,7 @@
 // import 'core-js';
 const express = require('express');
 const bodyParser = require('body-parser');
+const fs = require('fs');
 let yup = require('yup');
 // import * as yup from 'yup';
 
@@ -10,91 +11,84 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
-app.get('/api/hello', (req, res) => {
-  res.send({ express: 'Hello From Express' });
+app.post ('/api/getData', (req, res) => {
+  try {
+    fs.readFile(`clientLog.txt`, 'utf8', function readFileCallback(err, data){
+   if (err) {
+       systemLog(err);
+       reject(err);
+   }
+   else {  
+      console.log(data); 
+      res.send({ express: 'Hello From Express' }); //обработать данные из файла
+      resolve("Файл успешно прочитан");
+   }
+});
+} catch (error) {
+   console.log("ошибка функции чтения файла");  
+}
+ 
 });
 
 app.post('/api/data',async (req, res) => {
-  console.log(req.body.data.price);
-
  
   let schemaPrice = yup.object().shape({
-    // price: yup.string().required(),
     price: yup.number().test(
       'is-decimal',
       'invalid decimal',
-      value => (value + "").match(/^\d*\.{1}\d*$/),
+      value => (value + "").match(`(0|([1-9]\d*))(\.\d+)?`),
     )
-
   });
   let schemaCount = yup.object().shape({
-    // price: yup.string().required(),
     count: yup.number().test(
       'is-decimal',
       'invalid decimal',
-      value => (value + "").match(/^\d*\.{1}\d*$/),
+      value => (value + "").match(`(0|([1-9]\d*))(\.\d+)?`),
     )
-
   });
   let schemaSumm = yup.object().shape({
-    // price: yup.string().required(),
     summ: yup.number().test(
       'is-decimal',
       'invalid decimal',
-      value => (value + "").match(/^\d*\.{1}\d*$/),
+      value => (value + "").match(`(0|([1-9]\d*))(\.\d+)?`),
     )
-
   });
-  debugger;
   let priseValid = "";
   let countValid = "";
   let summValid = "";
 
-  let pr = await schema
+  let pr = await schemaPrice
     .isValid({
       price: req.body.data.price
     })
     .then(function(valid) {
-      debugger;
       priseValid = valid; 
     });
-  let cnt = await schema
+  let cnt = await schemaCount
     .isValid({
        count: req.body.data.count
     })
     .then(function(valid) {
-      debugger;
       countValid = valid; 
     });
-  let summa = await schema
+  let summa = await schemaSumm
     .isValid({
       summ: req.body.data.summ
     })
     .then(function(valid) {
-      debugger;
       summValid = valid; 
     });
-  
-  console.log(priseValid);
-  console.log(countValid);
-  console.log(summValid);
-  debugger;
-
  
+  if(priseValid && countValid && summValid){
+    fs.writeFileSync(`clientLog.txt`, `${req.body.data.price},${req.body.data.count},${req.body.data.summ}`);
+    res.send(JSON.stringify({ body:`Данные удачно переданы`}))
+  }
 
-  // debugger;
-  let str = req.body.data.count.toString()
-  // debugger;
-  // let arr = [23,45,65]
-  // arr.map((e) => console.log(e))
-  // debugger;
- 
-
-  res.send(JSON.stringify({ body:`I received your POST request. This is what you sent me: ${req.body.data.count}`  }))
-
-  // res.send(
-  //   `I received your POST request. This is what you sent me: ${str}`,//}
-  // );
+  res.send(JSON.stringify({ body:`Неправильно заполнены поля : 
+                                   ${!priseValid? '(Цена)':'' } 
+                                   ${!countValid? '(Количество)':'' } 
+                                   ${!summValid? '(Сумма)':'' }     `}))
 });
+
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

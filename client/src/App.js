@@ -14,63 +14,49 @@ class App extends Component {
   };
   
   componentDidMount() {
-    this.callApi()
+    this.initData()
       .then(res => this.setState({ response: res.express }))
       .catch(err => console.log(err));
   }
   
-  callApi = async () => {
-    const response = await fetch('/api/hello');
+  initData = async () => {
+    const response = await  fetch('/api/getData', 
+      {
+          method: 'POST', // *GET, POST, PUT, DELETE, etc. 
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: this.state }),                   
+      }
+    )
+  .then(r => r.json())
+  .then(r => {
+    debugger;
+    this.setState({ price: r.body.price,  count: r.body.count,  summ: r.body.summ });
+  })    
     const body = await response.json();
     if (response.status !== 200) throw Error(body.message);
-    
     return body;
   };
   
   handleSubmit = async e => {
     e.preventDefault();
-
-
     fetch('/api/data', 
-    {
-        method: 'POST', // *GET, POST, PUT, DELETE, etc. 
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: this.state }),                   
-    }
-        )
-        .then(r => r.json())
-        .then(r => {
-          this.setState({ responseToPost: r.body });
-          console.dir(r);
-           
-
-    }) 
-    
-    // const response = await fetch('/api/data', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify({ data: this.state }),
-    // });
-    // debugger;
-    // const body = await response.body.json();
-    // debugger;
-    // 
-
-
-
+      {
+          method: 'POST', // *GET, POST, PUT, DELETE, etc. 
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: this.state }),                   
+      }
+    )
+    .then(r => r.json())
+    .then(r => {
+      this.setState({ responseToPost: r.body });
+    })    
   };
   
 render() {
-  
-    // console.log(this.state.response)
-    console.log(this.state.responseToPost)
-    // console.log(this.state.price)
-    // console.log(this.state.count)
-    // console.log(this.state.summ)
     return (
       <div className="App">
         <header className="App-header">
