@@ -1,11 +1,8 @@
-// import express from 'express'
-// import bodyParser from "body-parser";
-// import 'core-js';
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs');
 let yup = require('yup');
-// import * as yup from 'yup';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -14,7 +11,7 @@ app.use(bodyParser.json());
 app.post ('/api/getData', (req, res) => {
   let dataNew ={}
   try {    
-    fs.readFile(`clientLog.txt`, 'utf8', function readFileCallback(err, data){
+    fs.readFile(`data.txt`, 'utf8', function readFileCallback(err, data){
       if (err) {
         console.log(err);
       }
@@ -57,7 +54,6 @@ app.post('/api/data',async (req, res) => {
     let priseValid = "";
     let countValid = "";
     let summValid = "";
-  
     let pr = await schemaPrice
       .isValid({
         price: req.body.data.price
@@ -81,7 +77,7 @@ app.post('/api/data',async (req, res) => {
       });
    
     if(priseValid && countValid && summValid){
-      fs.writeFileSync(`clientLog.txt`, `${req.body.data.price},${req.body.data.count},${req.body.data.summ}`);
+      fs.writeFileSync(`data.txt`, `${req.body.data.price},${req.body.data.count},${req.body.data.summ}`);
       res.send(JSON.stringify({ body:`Данные удачно переданы`}))
       return;
     }
