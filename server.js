@@ -9,18 +9,13 @@ const port = process.env.PORT || 5000;
 
 app.use(bodyParser.json());
 app.post ('/api/getData', (req, res) => {
-  let dataNew ={}
   try {    
-    fs.readFile(`data.txt`, 'utf8', function readFileCallback(err, data){
+    fs.readFile(`./data.json`, 'utf8', function readFileCallback(err, data){
       if (err) {
         console.log(err);
       }
-      else { 
-        let d = data.split(",") 
-        dataNew.price = d[0]
-        dataNew.count = d[1]
-        dataNew.summ = d[2]
-        res.send(JSON.stringify({ body: dataNew }))
+      else {               
+        res.send(JSON.stringify({ body: data }))
       }
     });    
   } catch (error) {
@@ -56,28 +51,31 @@ app.post('/api/data',async (req, res) => {
     let summValid = "";
     let pr = await schemaPrice
       .isValid({
-        price: req.body.data.price
+        
+        price: req.body.data.inputs.price
       })
       .then(function(valid) {
         priseValid = valid; 
       });
     let cnt = await schemaCount
       .isValid({
-         count: req.body.data.count
+         count: req.body.data.inputs.count
       })
       .then(function(valid) {
         countValid = valid; 
       });
     let summa = await schemaSumm
       .isValid({
-        summ: req.body.data.summ
+        summ: req.body.data.inputs.summ
       })
       .then(function(valid) {
         summValid = valid; 
       });
    
     if(priseValid && countValid && summValid){
-      fs.writeFileSync(`data.txt`, `${req.body.data.price},${req.body.data.count},${req.body.data.summ}`);
+      fs.writeFileSync('./data.json', JSON.stringify(req.body.data), 'utf8'); 
+
+      //fs.writeFileSync(`data.txt`, `${req.body.data.price},${req.body.data.count},${req.body.data.summ}`);
       res.send(JSON.stringify({ body:`Данные удачно переданы`}))
       return;
     }

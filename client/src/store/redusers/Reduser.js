@@ -24,13 +24,15 @@ const Reducer = (state = initialState, action) => {
     switch(action.type) {
         case INIT_DATA:
             return {
-                ...state,                                       
+                ...state, 
+                queue: action.data.queue,
+                indexQueue: action.data.indexQueue,
                 inputs: {
-                    ...state.inputs,
-                    price: action.data.price,
-                    count: action.data.count,
-                    summ: action.data.summ,                        
-                }
+                    price: action.data.inputs.price,
+                    count: action.data.inputs.count,
+                    summ: action.data.inputs.summ,
+                },
+                responceText: action.data.responceText,
             }
         case CHANGE_PRICE:
 
@@ -134,6 +136,7 @@ const Reducer = (state = initialState, action) => {
                     queue: queue
                 }
             }
+            //////////////////////////////////////////////////   Логика рекалькуляции , когда заполнены все три поля   ////////////////////////////////////////////////////
             if (queue.length === 3) {
                 
                 if (action.nameInput === queue[0].name ) {
@@ -183,7 +186,7 @@ export const changeSummAC = (value) => {
 export const initClientDataAC = (data) => {
     return {
         type: INIT_DATA,
-        data: data
+        data: JSON.parse(data)
     }
 }
 export const errorTextAC = (err) => {

@@ -16,14 +16,13 @@ class MainFormContainer extends React.Component {
         this.initData().catch(err => console.log(err));
     }
     
-    initData = async () => {
+    initData = async () => {        
         const response = await  fetch('/api/getData', { method: 'POST' })
         .then(r => r.json())
         .then(r => this.props.initClientData( r.body ))
     };   
 
     handleSubmit = async e => {
-        debugger;
         e.preventDefault();
         fetch('/api/data', 
           {
@@ -31,13 +30,12 @@ class MainFormContainer extends React.Component {
               headers: {
                 'Content-Type': 'application/json',
               },
-              body: JSON.stringify({ data: this.props.data.inputs }),                   
+              body: JSON.stringify({ data: this.props.data }),                   
           }
         )
         .then(r => r.json())
         .then(r => {
             this.props.errorText({ responceText: r.body })
-        //   this.setState({ responseToPost: r.body });
         })    
     }; 
     
